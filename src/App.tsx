@@ -18,6 +18,7 @@ function App() {
 
 
     </Routes>
+      <footer className="text-center">Made with 💖 by Len.icon | <a href="https://github.com/Lenicon">Github</a> | <a href="https://lenicon.itch.io">Itch.io</a> | <a href="https://x.com/LeniconDev">X</a></footer>
     </BrowserRouter>
   )
 }

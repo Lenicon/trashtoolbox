@@ -66,12 +66,12 @@ export default function SvgColorer() {
     }, []);
 
     return (
-        <div className="h-screen w-screen flex flex-col justify-center items-center">
+        <div className="w-screen h-[90vh] flex flex-col justify-center items-center">
             
             <a href="/">Back</a>
             <h1 className="text-3xl font-bold pb-10">SVG COLORER</h1>
 
-            <div>
+            <div className="w-[768px]">
                 <input type='file' id='myFile' name='filename' onChange={(e) => handleChange(e)} />
                 <br />
 
