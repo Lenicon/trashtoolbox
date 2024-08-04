@@ -111,12 +111,12 @@ export default function SvgColorer() {
 
                     {/* UNMERGED */}
                     {!merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(fillObj).map((key: string, id: number) => (
-                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={id} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: e.target.value })} />
+                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={`unmerged_${id}`} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: (e.target.value.replace('#','').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g)?e.target.value:e.target.value.replace('#','')) })} />
                     ))}</div> : <></>}
 
                     {/* MERGED */}
                     {merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(mergeObj).map((_key: string, id: number) => (
-                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={id} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => {setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#','').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g)?e.target.value:e.target.value.replace('#','')))}); }} />
+                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={`merged_${id}`} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => {setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#','').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g)?e.target.value:e.target.value.replace('#','')))}) }} />
                     ))}</div> : <></>}
 
                     {finalSvg ?

@@ -3,8 +3,10 @@ import { links } from "../components/links";
 export default function Home() {
   return (
     <div className="h-[90vh] flex flex-col items-center">
-      <h1 className="md:text-[4rem] text-4xl font-bold pt-5">🧰 Trash Toolbox</h1>
-      <h3 className="md:text-[1.8rem] text-xl pb-20">{'Stuff I made (in a hurry) to help myself'}</h3>
+      <div className="flex flex-col gap-2 items-center">
+        <h1 className="md:text-[4rem] text-4xl leading-none font-bold pt-8 text-center">🧰 Trash Toolbox 🧰</h1>
+        <p className="md:text-2xl text-base pb-16 text-center">{'Stuff I made (in a hurry) to help myself'}</p>
+      </div>
 
       <div className="flex flex-wrap gap-3">
         {Object.keys(links).map(key => (
