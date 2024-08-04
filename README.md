@@ -1,5 +1,5 @@
 # Trash Toolbox
-## Just some tools I made (in a hurry) to help myself
+Just some tools I made (in a hurry) to help myself
 
 Link: https://trash-toolbox.web.app/
 
