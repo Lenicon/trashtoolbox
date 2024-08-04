@@ -71,7 +71,7 @@ export default function SvgColorer() {
             <a href="/">Back</a>
             <h1 className="text-3xl font-bold pb-10">SVG COLORER</h1>
 
-            <div className="w-[768px]">
+            <div className="md:w-[80vw] w-screen">
                 <input type='file' id='myFile' name='filename' onChange={(e) => handleChange(e)} />
                 <br />
 
