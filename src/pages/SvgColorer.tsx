@@ -117,12 +117,12 @@ export default function SvgColorer() {
 
                     {/* UNMERGED */}
                     {!merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(fillObj).map((key: string, id: number) => (
-                        <input aria-label="color" style={{ backgroundColor: `${tinycolor(fillObj[key]).isValid()?fillObj[key]:'#000'}` }} className={`border-b border-black text-center w-[7rem] ${tinycolor(fillObj[key]).isDark() && fillObj[mergeArray[id][0]]!="#3333" ? 'text-white' : 'text-black'}`} key={`unmerged_${id}`} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', '')) })} />
+                        <input aria-label="color" style={{ backgroundColor: `${tinycolor(fillObj[key]).isValid()?fillObj[key]:'#000'}` }} className={`border-b border-black text-center w-[7rem] ${tinycolor(fillObj[key]).isDark() ? 'text-white' : 'text-black'}`} key={`unmerged_${id}`} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', '')) })} />
                     ))}</div> : <></>}
 
                     {/* MERGED */}
                     {merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(mergeObj).map((_key: string, id: number) => (
-                        <input aria-label="color" style={{ backgroundColor: `${tinycolor(fillObj[mergeArray[id][0]]).isValid()?fillObj[mergeArray[id][0]]:'#000'}` }} className={`border-b border-black text-center w-[7rem] ${tinycolor(fillObj[mergeArray[id][0]]).isDark() && fillObj[mergeArray[id][0]]!="#3333" ? 'text-white' : 'text-black'}`} key={`merged_${id}`} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => { setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', ''))) }) }} />
+                        <input aria-label="color" style={{ backgroundColor: `${tinycolor(fillObj[mergeArray[id][0]]).isValid()?fillObj[mergeArray[id][0]]:'#000'}` }} className={`border-b border-black text-center w-[7rem] ${tinycolor(fillObj[mergeArray[id][0]]).isDark() ? 'text-white' : 'text-black'}`} key={`merged_${id}`} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => { setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', ''))) }) }} />
                     ))}</div> : <></>}
 
                     {finalSvg ?
