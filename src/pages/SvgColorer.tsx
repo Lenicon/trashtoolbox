@@ -87,7 +87,6 @@ export default function SvgColorer() {
     // Convert SVG to ObjectURL From Blob and Downloading it
     const downloadBlob = (blob: any, filename: any) => {
         const objectUrl = URL.createObjectURL(blob);
-        console.log(objectUrl)
 
         const link = document.createElement("a");
         link.href = objectUrl;
@@ -102,7 +101,6 @@ export default function SvgColorer() {
     const downloadSVG = useCallback(() => {
         const svg = svgRef.current.innerHTML;
         const blob = new Blob([svg], { type: "image/svg+xml" });
-        console.log(blob);
         downloadBlob(blob, `img_${new Date().toISOString()}.svg`);
     }, []);
 
