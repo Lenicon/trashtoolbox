@@ -1,15 +1,18 @@
 import { useCallback, useRef, useState } from "react";
 import parse from 'html-react-parser';
+import tinycolor from 'tinycolor2';
+import { colornames } from "../config/colors";
 
 export default function SvgColorer() {
+    let colorReg = new RegExp('('+colornames.join('|')+')', "gi")
+
     const [fillObj, setfillObj] = useState<any>({});
     const [mergeObj, setMergeObj] = useState<any>({});
     const [mergeArray, setMergeArray] = useState<any>([]);
 
-
     const [mutableSvg, setMutableSVG] = useState('');
     const [finalSvg, setFinalSVG] = useState<any>();
-    const [merge, setMerge] = useState(false);
+    const [merge, setMerge] = useState(true);
 
     // Handle File Upload
     function handleFileUpload(e: any) {
@@ -19,7 +22,9 @@ export default function SvgColorer() {
 
         fr.onload = function () {
 
-            let result = fr.result.toString().replace(/fill=/g, '');
+            // let clean = result.split
+
+            let result = fr.result.toString().replace(/width="([\d]+)"/, '').replace(/height="([\d]+)"/, '').replace(/rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/g, (key: tinycolor.ColorInput)=>tinycolor(key).toHexString()).replace(colorReg, key=>tinycolor(key).toHexString()).replace(/fill=/g, '').replace(/stroke=/g, '');
             let newobj = Object.assign({}, result.replace(/"/g, ' ').split(' ').filter((v: any) => v.match(/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/)))
 
             setfillObj(newobj);
@@ -34,11 +39,12 @@ export default function SvgColorer() {
 
 
     // Replace HexColor in SVG String to {{id}} so it's easily changeable
-    const convertResToMutableSVGString = (file: any, amount: number) => {
+    const convertResToMutableSVGString = (file: any, amount: number) => {        
         let newsvg = file;
-        for (let index = 0; index < amount; index++) {
-            newsvg = newsvg.toString().replace(/"#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})"/, `"{{${index}}}"`);
+        for (let index=0; index < amount; index++) {
+            newsvg = newsvg.toString().replace(/width="([\w]+)"/, '').replace(/height="([\w]+)"/, '').replace(/rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/g, (key: tinycolor.ColorInput)=>tinycolor(key).toHexString()).replace(colorReg, (key: tinycolor.ColorInput)=>tinycolor(key).toHexString()).replace(/"#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})"/, `"{{${index}}}"`);
         }
+        
         setMutableSVG(newsvg)
     }
 
@@ -47,7 +53,7 @@ export default function SvgColorer() {
         let checkLength = Object.keys(obj).length;
         let newsvg = file;
         for (let index = 0; index < checkLength; index++) {
-            newsvg = newsvg.replace(/"{{[0-9]}}"/, `"${obj[index]}"`);
+            newsvg = newsvg.replace(/"{{[0-9]+}}"/, `"${obj[index]}"`);
         }
         setFinalSVG(parse(newsvg));
     }
@@ -67,20 +73,21 @@ export default function SvgColorer() {
     }
 
     // Convert Object ID to Value and Vice Versa. Ex: {"#000":[0, 1]} => {0:'#000', 1:'#000'}
-    const convertObjectValueToID = (obj: any, id:number, value:string) => {
+    const convertObjectValueToID = (obj: any, id: number, value: string) => {
         // let objkeys = Object.keys(obj);
-        let objval:any = Object.values(obj);
+        let objval: any = Object.values(obj);
         let newobj: any = {};
         for (let j = 0; j < objval[id].length; j++) {
-                newobj[objval[id][j]] = value
-            }
-        
+            newobj[objval[id][j]] = value
+        }
+
         return newobj;
     }
 
     // Convert SVG to ObjectURL From Blob and Downloading it
     const downloadBlob = (blob: any, filename: any) => {
         const objectUrl = URL.createObjectURL(blob);
+        console.log(objectUrl)
 
         const link = document.createElement("a");
         link.href = objectUrl;
@@ -95,6 +102,7 @@ export default function SvgColorer() {
     const downloadSVG = useCallback(() => {
         const svg = svgRef.current.innerHTML;
         const blob = new Blob([svg], { type: "image/svg+xml" });
+        console.log(blob);
         downloadBlob(blob, `img_${new Date().toISOString()}.svg`);
     }, []);
 
@@ -105,32 +113,32 @@ export default function SvgColorer() {
             <h1 className="text-3xl font-bold pb-10">SVG COLORER</h1>
 
             <div className="md:w-[80vw] w-screen flex items-center flex-col">
-                <input className="pb-5" type='file' id='myFile' name='filename' accept="svg" onChange={(e) => { handleFileUpload(e); }} />
+                <input aria-label="upload-file" className="pb-5" type='file' id='myFile' name='filename' accept="svg" onChange={(e) => { handleFileUpload(e); }} />
 
                 <div className="pt-5 flex flex-col gap-3 w-full">
 
                     {/* UNMERGED */}
                     {!merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(fillObj).map((key: string, id: number) => (
-                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={`unmerged_${id}`} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: (e.target.value.replace('#','').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g)?e.target.value:e.target.value.replace('#','')) })} />
+                        <input aria-label="color" style={{ backgroundColor: fillObj[key] }} className={`border-b border-black text-center w-[7rem] ${tinycolor(fillObj[key]).isDark() ? 'text-white' : 'text-black'}`} key={`unmerged_${id}`} value={'#' + fillObj[key].replace('#', '')} maxLength={7} onChange={(e) => setfillObj({ ...fillObj, [id]: (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', '')) })} />
                     ))}</div> : <></>}
 
                     {/* MERGED */}
-                    {merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(mergeObj).map((_key: string, id: number) => (
-                        <input aria-label="color" className="border-b border-black text-center w-[7rem]" key={`merged_${id}`} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => {setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#','').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g)?e.target.value:e.target.value.replace('#','')))}) }} />
+                    {merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(mergeObj).map((key: string, id: number) => (
+                        <input aria-label="color" style={{ backgroundColor: fillObj[mergeArray[id][0]] }} className={`border-b border-black text-center w-[7rem] ${tinycolor(key).isDark() ? 'text-white' : 'text-black'}`} key={`merged_${id}`} value={'#' + fillObj[mergeArray[id][0]].replace('#', '')} maxLength={7} onChange={(e) => { setfillObj({ ...fillObj, ...convertObjectValueToID(mergeObj, id, (e.target.value.replace('#', '').match(/([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/g) ? e.target.value : e.target.value.replace('#', ''))) }) }} />
                     ))}</div> : <></>}
 
                     {finalSvg ?
                         <div className="flex items-center justify-center" ref={svgRef}>
-                            <span className="size-[10rem]">{finalSvg}</span>
+                            <span className="size-[10rem] text-size[10rem] max-[10rem]:" >{finalSvg}</span>
                         </div> : <></>
                     }
 
                     <div className="flex flex-wrap pt-5 items-center justify-center">
-                        <div className="md:w-[70%] w-[80%] flex flex-row gap-2">
-                            <button className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-green-400 font-bold" onClick={() => convertStringToReactSVG(mutableSvg, fillObj)}>Update</button>
-                            <button className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-pink-400 font-bold" onClick={() => setMerge(!merge)}>{merge ? 'Unm' : 'M'}erge Fills</button>
-                            <button className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-yellow-400 font-bold" onClick={downloadSVG}>Download</button>
-                            
+                        <div className="md:w-[70%] w-[80%] flex flex-row md:gap-2 gap-0">
+                            <button type="button" className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-green-400 font-bold" onClick={() => convertStringToReactSVG(mutableSvg, fillObj)}>Update</button>
+                            <button type="button" className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-pink-400 font-bold" onClick={() => setMerge(!merge)}>{merge ? 'Unm' : 'M'}erge Values</button>
+                            <button type="button" className="px-2 py-3 w-[33.3333333%] text-sm text-center bg-yellow-400 font-bold" onClick={downloadSVG}>Download</button>
+
                         </div>
                     </div>
                 </div>
