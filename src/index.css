@@ -6,7 +6,11 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-a {
+html, body {
+  background-color: white;
+}
+
+.social {
   font-weight: 500;
   text-decoration: inherit;
 }

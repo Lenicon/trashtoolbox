@@ -6,6 +6,7 @@ import { colornames } from "../config/colors";
 export default function SvgColorer() {
     let colorReg = new RegExp('('+colornames.join('|')+')', "gi")
 
+    const [fileAvailable, setFileAvailable] = useState(false);
     const [fillObj, setfillObj] = useState<any>({});
     const [mergeObj, setMergeObj] = useState<any>({});
     const [mergeArray, setMergeArray] = useState<any>([]);
@@ -21,6 +22,7 @@ export default function SvgColorer() {
         let fr = new FileReader();
 
         fr.onload = function () {
+            setFileAvailable(true);
 
             // let clean = result.split
 
@@ -105,15 +107,14 @@ export default function SvgColorer() {
     }, []);
 
     return (
-        <div className="w-screen h-[90vh] flex flex-col justify-center items-center">
+        <div className="h-[50vh] flex flex-col items-center">
 
-            <a href="/">Back</a>
-            <h1 className="text-3xl font-bold pb-10">SVG COLORER</h1>
+            <h1 className="text-3xl font-bold pt-[5rem] pb-10">SVG COLORER</h1>
 
             <div className="md:w-[80vw] w-screen flex items-center flex-col">
-                <input aria-label="upload-file" className="pb-5" type='file' id='myFile' name='filename' accept="svg" onChange={(e) => { handleFileUpload(e); }} />
+                <input aria-label="upload-file" className="pb-5" type='file' id='myFile' name='filename' accept=".svg" onChange={(e) => { handleFileUpload(e); }} />
 
-                <div className="pt-5 flex flex-col gap-3 w-full">
+                <div className={`pt-5 flex flex-col gap-3 w-full ${fileAvailable?'':'hidden'}`}>
 
                     {/* UNMERGED */}
                     {!merge ? <div className="flex flex-wrap md:gap-3 gap-5 pb-2 items-center justify-center">{Object.keys(fillObj).map((key: string, id: number) => (

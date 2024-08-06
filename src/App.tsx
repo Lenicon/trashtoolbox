@@ -6,6 +6,8 @@ import { links } from "./components/links"
 function App() {
   return (
     <BrowserRouter>
+    {window.location.pathname!="/"? <header className="text-center fixed top-2 bg-white w-full text-2xl font-bold"><a href="/">🧰 Trash Toolbox 🧰</a></header>:<></>}
+
     <Routes>
       <Route path="/" element={<Home/>}/>
 
@@ -18,7 +20,7 @@ function App() {
 
 
     </Routes>
-      <footer className="text-center">Made with 💖 by Len.icon | <a target='_blank' href="https://github.com/Lenicon">Github</a> | <a target='_blank' href="https://lenicon.itch.io">Itch.io</a> | <a target='_blank' href="https://x.com/LeniconDev">X</a></footer>
+      <footer className="text-center fixed bottom-2 bg-white w-full">Made with 💖 by Len.icon | <a className="social" target='_blank' href="https://github.com/Lenicon">Github</a> | <a className="social" target='_blank' href="https://lenicon.itch.io">Itch.io</a> | <a className="social" target='_blank' href="https://x.com/LeniconDev">X</a></footer>
     </BrowserRouter>
   )
 }
