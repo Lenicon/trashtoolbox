@@ -103,7 +103,7 @@ export default function SvgColorer() {
     const downloadSVG = useCallback(() => {
         const svg = svgRef.current.innerHTML;
         const blob = new Blob([svg], { type: "image/svg+xml" });
-        downloadBlob(blob, `img_${new Date().toISOString()}.svg`);
+        downloadBlob(blob, `ttbox-svgColorer_${new Date().getSeconds()}.svg`);
     }, []);
 
     return (

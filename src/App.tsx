@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import Home from "./pages/Home"
-import { links } from "./components/links"
+import { links } from "./config/links"
 
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home/>}/>
 
-      {Object.keys(links).filter(t=>links[t].route!=null).map(key=>(
+      {Object.keys(links).filter(t=>links[t].route!=null).filter(t=>!t.startsWith("!")).map(key=>(
           <Route key={key} path={key} element={links[key]?.route||<Home/>}/>
       ))}
 
