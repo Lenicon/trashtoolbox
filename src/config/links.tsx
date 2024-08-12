@@ -1,11 +1,13 @@
 import ObjectFielder from "../pages/ObjectFielder";
 import RottenFoodChecker from "../pages/RottenFoodChecker";
 import SvgColorer from "../pages/SvgColorer";
+import BirthdayWisher from "../pages/BirthdayWisher";
 
 export const links:any = {
     'svg-colorer': {title:'SVG Colorer', route:<SvgColorer/>},
     '!object-fielder': {title:'Object Fielder', route:<ObjectFielder/>},
-    'rotten-food-checker':{title: 'Rotten Food Checker', route:<RottenFoodChecker/>}
+    'rotten-food-checker':{title: 'Rotten Food Checker', route:<RottenFoodChecker/>},
+    'birthday-wisher': {title:'Birthday Wisher', route:<BirthdayWisher/>}
 }
 
 export const homewords:any = [

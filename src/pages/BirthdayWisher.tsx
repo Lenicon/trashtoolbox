@@ -1,11 +1,11 @@
 // import React from 'react'
 
-export default function BirthdayFrog() {
+export default function BirthdayWisher() {
   return (
     <div>
-        <div>
-            
-        </div>
+      <div>
+        
+      </div>
     </div>
   )
 }

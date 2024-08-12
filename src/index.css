@@ -17,3 +17,41 @@ html, body {
 a:hover {
   text-decoration-line: underline;
 }
+
+*::placeholder {
+  color: #6b7280 !important;
+}
+
+
+/* ROT RATER */
+meter::-webkit-meter-bar{
+  background-color: gray;
+  border: none;
+}
+
+meter.fresh::-webkit-meter-optimum-value {
+  background-color: #00FF00;
+  background-size: 100% 100%;
+}
+meter.lilspoil::-webkit-meter-optimum-value {
+  background-color: #FFFF00;
+  background-size: 100% 100%;
+}
+meter.spoiled::-webkit-meter-optimum-value {
+  background-color: #FFA500;
+  background-size: 100% 100%;
+}
+meter.heavyspoil::-webkit-meter-optimum-value {
+  background-color: #FF0000;
+  background-size: 100% 100%;
+}
+meter.rotten::-webkit-meter-optimum-value {
+  background-color: #800000;
+  background-size: 100% 100%;
+}
+
+span.fresh {color:#00FF00}
+span.lilspoil {color:#FFFF00}
+span.spoiled {color:#FFA500}
+span.heavyspoil {color:#FF0000}
+span.rotten {color:#800000}
