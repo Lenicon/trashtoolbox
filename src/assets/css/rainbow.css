@@ -1,0 +1,20 @@
+.rainbowText {
+  --animationVar: rainbowColor 6s linear 0s infinite;
+
+
+  animation: var(--animationVar);
+  -o-animation: var(--animationVar);
+  -moz-animation: var(--animationVar);
+  -webkit-animation: var(--animationVar);
+}
+
+@keyframes rainbowColor {
+  0% {color: indigo;}
+  14.29% {color: blue;}
+  28.58% {color: green;}
+  42.87% {color: gold;}
+  57.16% {color: orange;}
+  71.45% {color: red;}
+  85.74% {color: violet;}
+  100% {color: indigo;}
+}

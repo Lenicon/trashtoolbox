@@ -1,0 +1,48 @@
+.calendar {
+    margin: 10%;
+    border-left: 1px solid var(--calendar-border);
+    border-top: 1px solid var(--calendar-border);
+}
+
+.calendar .wrapper {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.calendar .cell {
+    cursor: default;
+}
+
+.calendar .dayname {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: bold;
+    user-select: none;
+    /* text-transform: uppercase; */
+}
+
+.calendar .clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.calendar .clickable:hover {
+    cursor: pointer;
+    user-select: none;
+}
+
+.calendar .clickable:active {
+    cursor: pointer;
+    user-select: none;
+}
+
+.col-span {
+    grid-column: span 3 / span 3;
+}
+  
+.col-span-whole {
+    grid-column: span 7 / span 7;
+}

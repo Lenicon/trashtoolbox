@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { fileToGenerativePart, generateContent, getBase64 } from '../services/aiService';
-import stream from "stream";
-
-// FIX IMAGE UPLOAD / SCANNER SOON
+import '../assets/css/rottenFoodChecker.css';
 
 export default function RottenFoodChecker() {
 

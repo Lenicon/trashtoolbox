@@ -5,7 +5,11 @@ export default {
     "./src/**/*.tsx",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'calendar-hover':'#fef9c3'
+      }
+    },
   },
   plugins: [],
 }
