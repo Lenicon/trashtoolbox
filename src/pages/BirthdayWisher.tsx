@@ -1,7 +1,7 @@
 // import React from 'react'
 
 import { useEffect, useRef, useState } from "react";
-import { checkUserExist, createUserAsync, getCurrentBDCelebrants, getUpcomingBDCelebrants, getUserDataAllAsync, getUserDataAsync } from "../services/dbService";
+import { checkUserExist, createUserAsync, getCurrentBDCelebrants, getUpcomingBDCelebrants, getUserDataAllAsync, getUserDataAsync, sendBDGift } from "../services/dbService";
 import Calendar from "../components/calendar/Calendar";
 import secureLocalStorage from "react-secure-storage";
 import Countdown from "../components/Countdown";
@@ -22,6 +22,8 @@ export default function BirthdayWisher() {
   const [birthdayInfo, setBirthdayInfo] = useState<any>({});
 
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  const [giftLoading, setGiftLoading] = useState(false);
 
 
   /***  ON RENDER BDAY  ***/
@@ -92,6 +94,34 @@ export default function BirthdayWisher() {
     }
   }, [])
 
+  /*** IF CURRENTLY YOUR BIRTHDAY ***/
+  useEffect(() => {
+    if (secureLocalStorage.getItem('birthday') == null || secureLocalStorage.getItem('birthday') == undefined) return;
+
+    let bday = new Date(secureLocalStorage.getItem('birthday').toString());
+    if (format(new Date(), 'MM-dd-yyyy') == format(bday, 'MM-dd-yyyy')) {
+
+      let bi: any = secureLocalStorage.getItem('birthdayInfo');
+
+      async function setbday() {
+        let u = await getUserDataAllAsync(localStorage.getItem('authToken'));
+
+        if (bi == null || bi == undefined) bi = {};
+
+        bi.gifts = u?.giftsReceived + 1;
+        if (!bi?.username) bi.username = u?.username;
+
+        await secureLocalStorage.setItem('birthdayInfo', bi);
+        await setBirthdayInfo(bi);
+      }
+
+      if (!bi?.username || !bi?.giftsReceived) setbday();
+      else setBirthdayInfo(secureLocalStorage.getItem('birthdayInfo'));
+
+    }
+
+  }, []);
+
   /***  PLACE BIRTHDAY AND NAME AND BE PART OF THE PROGRAM ***/
   const handleSubmitInfo = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -117,7 +147,8 @@ export default function BirthdayWisher() {
       if (user != null) {
         // await setBDayAsync(user, info?.username, info?.birthday);
         // bd.current = info?.birthday.toISOString();
-        secureLocalStorage.setItem('birthday', info?.birthday.toISOString());
+        await secureLocalStorage.setItem('birthday', info?.birthday.toISOString());
+        await secureLocalStorage.setItem('birthdayInfo', { username: info?.username });
         bd.current = info?.birthday.toISOString();
 
         return window.location.reload();
@@ -130,10 +161,15 @@ export default function BirthdayWisher() {
 
   }
 
+  useEffect(() => {
+    let bi = secureLocalStorage.getItem('birthdayInfo')
+    if (bi != null || bi != undefined) setBirthdayInfo(bi);
+  }, [])
+
 
   /***  LOAD CURRENT CELEBRANTS  ***/
   const handleLoadCurrentCelebrants = async () => {
-    let celeb = await getCurrentBDCelebrants();
+    let celeb = await getCurrentBDCelebrants(localStorage.getItem('authToken'));
     if (!celeb) setCurCeleb([{}])
     else setCurCeleb(celeb);
     console.log(curCeleb);
@@ -142,31 +178,39 @@ export default function BirthdayWisher() {
 
   /***  LOAD UPCOMING CELEBRANTS  ***/
   const handleLoadUpcomingCelebrants = async () => {
-    let celeb = await getUpcomingBDCelebrants();
+    let celeb = await getUpcomingBDCelebrants(localStorage.getItem('authToken'));
     if (!celeb) setUpCeleb([{}])
     else setUpCeleb(celeb);
     console.log(upCeleb);
   }
 
-  /*** IF CURRENTLY YOUR BIRTHDAY ***/
-  useEffect(() => {
-    if (secureLocalStorage.getItem('birthday') == null || secureLocalStorage.getItem('birthday') == undefined) return;
 
-    let bday = new Date(secureLocalStorage.getItem('birthday').toString());
-    if (format(new Date(), 'MM-dd-yyyy') == format(bday, 'MM-dd-yyyy')) {
-      async function setbday() {
-        let u = await getUserDataAllAsync(localStorage.getItem('authToken'));
-        await secureLocalStorage.setItem('birthdayInfo', { gifts: 1, username:u });
-        await setBirthdayInfo({ gifts: 1, username:u });
-      }
 
-      if (secureLocalStorage.getItem('birthdayInfo')==null||secureLocalStorage.getItem('birthdayInfo')==undefined) setbday();
-      else setBirthdayInfo(secureLocalStorage.getItem('birthdayInfo'));
+  const handleSendGift = async (gifterToken: string, receiverToken: string) => {
+    let giftedArray = await sendBDGift(gifterToken, receiverToken);
+    if (!giftedArray) return;
 
-    }
+    let bi: any = secureLocalStorage.getItem('birthdayInfo');
 
-  }, []);
+    if (bi == null || bi == undefined) bi = {};
+    bi.usersGifted = giftedArray;
 
+    await secureLocalStorage.setItem('birthdayInfo', bi);
+    await setBirthdayInfo(bi);
+    await window.location.reload();
+
+  }
+
+  const test = async () => {
+    secureLocalStorage.setItem('badaw', { gayporn: 1 });
+    let ab: any = secureLocalStorage.getItem('badaw');
+    console.log(secureLocalStorage.getItem('badaw'), '1');
+    ab.greg = 3;
+    ab.abby = 'hi';
+    console.log(ab, '2');
+    secureLocalStorage.setItem('badaw', ab);
+    console.log(secureLocalStorage.getItem('badaw'), '3');
+  }
 
   return (
     <div className="lg:w-[920px] md:w-[768px] sm:w-[90%] m-auto">
@@ -180,21 +224,24 @@ export default function BirthdayWisher() {
           {/* SHOW COUNTDOWN */}
           {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ?
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh]">
-              <p>Received <strong>{birthdayInfo?.gifts||0} Presents</strong> 🎁 this year.</p>
+              <p>Received <strong>{birthdayInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
+              <button onClick={test}>test</button>
               <Countdown toDate={new Date(secureLocalStorage.getItem('birthday').toString())} />
               <p className="text-2xl">...left until your Birthday!</p>
             </div>
             :
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh] mb-5">
 
-              <h1 className="text-2xl font-bold">HAPPY BIRTHDAY, <span className="rainbowText">{birthdayInfo?.username.toUpperCase()||'❔'}</span>!</h1>
+              <h1 className="text-2xl font-bold">HAPPY BIRTHDAY, <span className="rainbowText">{birthdayInfo?.username ? birthdayInfo?.username.toUpperCase() : '❔'}</span>!</h1>
               <img className="size-[50%]" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f382.svg" />
-              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{birthdayInfo?.gifts} Present{birthdayInfo?.gifts>1?'s':''} 🎁</span> this Year!</h2>
+              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{birthdayInfo?.gifts ? birthdayInfo?.gifts:1} Present{birthdayInfo?.gifts > 1 ? 's' : ''} 🎁</span> this Year!</h2>
             </div>
           }
           {/* LOAD CELEBRANTS*/}
           <div className="flex md:flex-row flex-col md:gap-5 gap-2 justify-center -mt-7 md:items-baseline items-center">
 
+
+            {/* CURRENT CELEBRANTS */}
             {curCeleb.length == 0 ?
               <button onClick={handleLoadCurrentCelebrants} className="py-5 bg-green-400 hover:bg-green-300 md:w-[30%] w-[70%] font-bold md:mb-0 mb-2 h-full">Load Current Celebrants</button>
               :
@@ -208,14 +255,21 @@ export default function BirthdayWisher() {
                           <p className="font-bold">{username}</p>
                           <time>TODAY!</time>
                         </span>
-                        <button className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%]">GIFT</button>
-                      </div> : <span key={0} className="text-gray-800 text-center">No {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? 'Current':'Other'} Celebrants found in this site...</span>
+
+                        {/* GIFT BUTTON */}
+                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift" className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
+                          disabled={giftLoading ? true : birthdayInfo?.usersGifted ? birthdayInfo?.usersGifted.includes(id) : false}>
+                          {giftLoading ? 'GIFTING...' : 'GIFT'}
+                        </button>
+
+                      </div> : <span key={0} className="text-gray-800 text-center">No {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? 'Current' : 'Other'} Celebrants found in this site...</span>
                     ))
                   }
                 </div>
               </div>
             }
 
+            {/* UPCOMING CELEBRANTS */}
             {upCeleb.length == 0 ?
               <button onClick={handleLoadUpcomingCelebrants} className="py-5 bg-yellow-400 hover:bg-yellow-300 md:w-[30%] w-[70%] font-bold h-full">Load Upcoming Celebrants</button>
               :
@@ -229,7 +283,13 @@ export default function BirthdayWisher() {
                           <p className="font-bold">{username}</p>
                           <time>{new Date(birthday?.seconds * 1000 + birthday?.nanoseconds / 1000).toLocaleDateString()}</time>
                         </span>
-                        <button className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%]">GIFT</button>
+
+                        {/* GIFT BUTTON */}
+                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift" className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
+                          disabled={giftLoading ? true : birthdayInfo?.usersGifted ? birthdayInfo?.usersGifted.includes(id) : false}>
+                          {giftLoading ? 'GIFTING...' : 'GIFT'}
+                        </button>
+
                       </div> : <span key={0} className="text-gray-800 text-center">No Upcoming Celebrants within 10 days after today...</span>
                     ))
                   }

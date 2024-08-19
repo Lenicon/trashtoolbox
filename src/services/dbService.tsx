@@ -11,8 +11,10 @@ import {
   query,
   where,
   limit,
+  increment,
+  arrayUnion,
 } from 'firebase/firestore';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 
 
 const genRandomNum = () => {
@@ -122,9 +124,14 @@ export const getUsersAsync = async () => {
   }
 }
 
-export const getCurrentBDCelebrants = async () => {
+
+
+
+/***  BIRTHDAY WISHER  ***/
+
+export const getCurrentBDCelebrants = async (authToken: string) => {
   try {
-    let startTime = new Date();
+    let startTime = new Date(format(new Date(), 'MM/dd/yyyy'));
     let endTime = addDays(new Date(), 1);
 
     const random = genRandomNum();
@@ -153,7 +160,10 @@ export const getCurrentBDCelebrants = async () => {
       }
 
       console.log(docs);
-      return docs;
+      let a = docs.filter((d) => (d.id != authToken));
+      if (a.length == 0) return [{}];
+      return a;
+
     } else {
 
       let docSnapUnder = await getDocs(docRefUnder);
@@ -161,7 +171,10 @@ export const getCurrentBDCelebrants = async () => {
         let docs = [...docSnapUnder.docs.map((d) => ({ id: d.id, ...d.data() }))];
 
         console.log(docs);
-        return docs;
+        let a = docs.filter((d) => (d.id != authToken));
+        if (a.length == 0) return [{}];
+        return a;
+
       }
 
     }
@@ -171,7 +184,7 @@ export const getCurrentBDCelebrants = async () => {
   }
 }
 
-export const getUpcomingBDCelebrants = async () => {
+export const getUpcomingBDCelebrants = async (authToken: string) => {
   try {
     let startTime = new Date();
     let endTime = addDays(new Date(), 10);
@@ -201,7 +214,10 @@ export const getUpcomingBDCelebrants = async () => {
       }
 
       console.log(docs);
-      return docs;
+      let a = docs.filter((d) => (d.id != authToken));
+      if (a.length == 0) return [{}];
+      return a;
+
     } else {
 
       let docSnapUnder = await getDocs(docRefUnder);
@@ -209,12 +225,48 @@ export const getUpcomingBDCelebrants = async () => {
         let docs = [...docSnapUnder.docs.map((d) => ({ id: d.id, ...d.data() }))];
 
         console.log(docs);
-        return docs;
+        let a = docs.filter((d) => (d.id != authToken));
+        if (a.length == 0) return [{}];
+        return a;
+
       }
 
     }
 
   } catch (e) {
     console.error(e);
+  }
+}
+
+export const sendBDGift = async (gifterToken: string, receiverToken: string) => {
+  try {
+    const receiverRef = doc(db, 'users', receiverToken);
+    const gifterRef = doc(db, 'users', gifterToken);
+    let receiverSnap = await getDoc(receiverRef);
+
+    if (receiverSnap.exists() == true) {
+      let gifterSnap = await getDoc(gifterRef);
+      if (gifterSnap.exists() == true) {
+
+        await updateDoc(receiverRef, {
+          giftsReceived: increment(1)
+        }).catch((e) => {
+          console.error(e);
+        })
+
+        await updateDoc(gifterRef, {
+          usersGifted: arrayUnion(receiverToken)
+        }).catch((e) => {
+          console.error(e);
+        })
+
+        let gifterdoc = await getDoc(gifterRef);
+        return await gifterdoc.data()['usersGifted'];
+
+      }
+    }
+
+  } catch (error) {
+    console.error(error);
   }
 }
