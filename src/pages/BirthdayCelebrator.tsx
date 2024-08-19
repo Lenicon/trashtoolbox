@@ -8,7 +8,7 @@ import Countdown from "../components/Countdown";
 import { format } from "date-fns";
 import '../assets/css/rainbow.css';
 
-export default function BirthdayWisher() {
+export default function BirthdayCelebrator() {
   const uid = useRef('');
   const bd = useRef('');
 
