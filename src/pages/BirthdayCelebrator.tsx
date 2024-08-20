@@ -5,12 +5,17 @@ import { checkUserExist, createUserAsync, getCurrentBDCelebrants, getUpcomingBDC
 import Calendar from "../components/calendar/Calendar";
 import secureLocalStorage from "react-secure-storage";
 import Countdown from "../components/Countdown";
-import { format, isBefore } from "date-fns";
+import { differenceInYears, format, isBefore } from "date-fns";
 import '../assets/css/rainbow.css';
+import useSound from 'use-sound';
+import birthdaySound from '/birthday.mp3';
+import { getOrdinal } from "../services/utils";
 
 export default function BirthdayCelebrator() {
   const lsUserInfo: any = useRef(secureLocalStorage.getItem('birthday'));
-  const authToken: any = useRef(localStorage.getItem('authToken'));
+  // const authToken: any = useRef(localStorage.getItem('authToken'));
+
+  const [play, {stop}] = useSound(birthdaySound);
 
   const uid = useRef('');
   const bd = useRef('');
@@ -53,6 +58,7 @@ export default function BirthdayCelebrator() {
 
   /***  ON RENDER AUTH TOKEN  ***/
   useEffect(() => {
+    let authToken = localStorage.getItem('authToken');
     // Check if authToken exists
     if (authToken != undefined || authToken != null) {
       let res = checkUserExist(authToken.toString());
@@ -88,6 +94,7 @@ export default function BirthdayCelebrator() {
 
   /*** IF CURRENTLY YOUR BIRTHDAY ***/
   useEffect(() => {
+    let authToken = localStorage.getItem('authToken');
     let bi: any = secureLocalStorage.getItem('userInfo');
 
     if (!bi?.birthday) return;
@@ -121,6 +128,8 @@ export default function BirthdayCelebrator() {
 
       if (!bi?.username || !bi?.giftsReceived) setbday();
       else setUserInfo(secureLocalStorage.getItem('userInfo'));
+
+      playBdaySong();
 
     }
     else {
@@ -162,6 +171,8 @@ export default function BirthdayCelebrator() {
 
         await secureLocalStorage.setItem('userInfo', bi);
         bd.current = info?.birthday.toISOString();
+        await localStorage.setItem('authToken', user);
+        uid.current = user;
         return window.location.reload();
       }
 
@@ -184,7 +195,7 @@ export default function BirthdayCelebrator() {
 
     let bi: any = secureLocalStorage.getItem('userInfo');
 
-    if (bi?.usersGifted?.length != 0) {
+    if (bi?.usersGifted?.length != 0 && bi?.usersGifted != undefined && bi?.usersGifted != null) {
       // console.log(bi?.usersGifted);
 
       let ugData = await getUserDataByArray(bi?.usersGifted);
@@ -219,7 +230,7 @@ export default function BirthdayCelebrator() {
     setUpLoading(true);
     let bi: any = secureLocalStorage.getItem('userInfo');
 
-    if (bi?.usersGifted?.length != 0) {
+    if (bi?.usersGifted?.length != 0 && bi?.usersGifted != undefined && bi?.usersGifted != null) {
       let ugData = await getUserDataByArray(bi?.usersGifted);
       // console.log(ugData, '2');
 
@@ -250,17 +261,19 @@ export default function BirthdayCelebrator() {
   const handleSendGift = async (gifterToken: string, receiverToken: string) => {
     setGiftLoading(true);
     let giftedArray = await sendBDGift(gifterToken, receiverToken);
-    if (!giftedArray) return;
+    if (!giftedArray) return setGiftLoading(false);
 
     let bi: any = secureLocalStorage.getItem('userInfo');
-
-    if (bi == null || bi == undefined) bi = {};
     bi.usersGifted = giftedArray;
-
     await secureLocalStorage.setItem('userInfo', bi);
     await setUserInfo(bi);
-    await setGiftLoading(false);
+    setGiftLoading(false);
 
+  }
+
+  const playBdaySong = () => {
+    stop();
+    play();
   }
 
   const test = async () => {
@@ -274,6 +287,10 @@ export default function BirthdayCelebrator() {
     console.log(secureLocalStorage.getItem('badaw'), '3');
   }
 
+  const getAge = () => {
+    return differenceInYears(new Date(format(new Date(), 'MM-dd-yyyy')), new Date(format(userInfo?.birthday, 'MM-dd-yyyy')));
+  }
+
   return (
     <div className="lg:w-[920px] md:w-[768px] sm:w-[90%] m-auto">
 
@@ -284,19 +301,19 @@ export default function BirthdayCelebrator() {
           {/* {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? <span>Received {userInfo?.gifts||0} 🎁 this year.</span>:<></>} */}
 
           {/* SHOW COUNTDOWN */}
-          {format(new Date(), 'MM-dd-yyyy') != format(new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006'), 'MM-dd-yyyy') ?
+          {format(new Date(), 'MMMM dd') != format(new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : 'August 8'), 'MMMM dd') ?
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh]">
-              <p>Received <strong>{userInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
-              <button onClick={test}>test</button>
+              <p className="text-center">Hello <strong>{userInfo?.username}</strong>,<br/>You Received <strong>{userInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
               <Countdown toDate={new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006')} />
               <p className="text-2xl">...left until your Birthday!</p>
             </div>
             :
-            <div className="flex flex-col gap-3 justify-center items-center h-[50vh] mb-5">
+            <div className="flex flex-col gap-3 justify-center items-center h-[65vh] mb-5">
 
-              <h1 className="text-2xl font-bold">HAPPY BIRTHDAY, <span className="rainbowText">{userInfo?.username ? userInfo?.username.toUpperCase() : '❔'}</span>!</h1>
+              <h1 className="text-2xl font-bold">HAPPY <span className="rainbowText">{getAge()}{getOrdinal(getAge()).toUpperCase()}</span> BIRTHDAY, <span className="rainbowText">{userInfo?.username ? userInfo?.username.toUpperCase() : '❔'}</span>!</h1>
               <img className="size-[50%]" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f382.svg" />
-              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{userInfo?.gifts ? userInfo?.gifts : 1} Present{userInfo?.gifts > 1 ? 's' : ''} 🎁</span> this Year!</h2>
+              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{userInfo?.gifts ? userInfo?.gifts : 1} Present{userInfo?.gifts > 1 ? 's' : ''} 🎁</span></h2>
+              <button onClick={()=>playBdaySong()} className="rainbowBG py-4 md:px-3 md:w-[62%] w-[70vw] font-bold text-base text-center">Play Happy Birthday Song</button>
             </div>
           }
           {/* LOAD CELEBRANTS*/}

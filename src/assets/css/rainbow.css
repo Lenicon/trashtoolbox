@@ -18,3 +18,35 @@
   85.74% {color: violet;}
   100% {color: indigo;}
 }
+
+.rainbowBG {
+  --animationVar: rainbowBGColor 6s linear 0s infinite;
+  color: white;
+
+  animation: var(--animationVar);
+  -o-animation: var(--animationVar);
+  -moz-animation: var(--animationVar);
+  -webkit-animation: var(--animationVar);
+}
+
+@keyframes rainbowBGColor {
+  0% {background-color: indigo;}
+  14.29% {background-color: blue;}
+  28.58% {background-color: green;}
+  42.87% {background-color: gold;}
+  57.16% {background-color: orange;}
+  71.45% {background-color: red;}
+  85.74% {background-color: violet;}
+  100% {background-color: indigo;}
+}
+
+/* @keyframes rainbowBGColor {
+  0% {background-color: indigo; color: white;}
+  14.29% {background-color: blue; color: white;}
+  28.58% {background-color: green; color: white;}
+  42.87% {background-color: gold; color: black;}
+  57.16% {background-color: orange; color: black;}
+  71.45% {background-color: red; color: white;}
+  85.74% {background-color: violet; color: black;}
+  100% {background-color: indigo; color: white;}
+} */

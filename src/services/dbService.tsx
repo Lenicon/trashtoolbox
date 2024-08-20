@@ -17,16 +17,8 @@ import {
   documentId,
 } from 'firebase/firestore';
 import { addDays, format } from 'date-fns';
+import { genRandomNum, objectFilter } from './utils';
 
-
-export const objectFilter = (obj: any, predicate: any) =>
-  Object.keys(obj)
-    .filter(key => predicate(obj[key]))
-    .reduce((res: any, key) => (res[key] = obj[key], res), {});
-
-const genRandomNum = () => {
-  return Math.floor(Math.random() * (9999999999 - 1000000000 + 1)) + 1000000000;
-}
 
 export const checkUserExist = async (authToken: string) => {
   try {
@@ -134,7 +126,10 @@ export const getUserDataAsync = async (authToken: string, data: string) => {
 }
 
 export const getUserDataByArray = async (arrAuthToken: Array<string>) => {
+  if (arrAuthToken==undefined || arrAuthToken == null) return;
+  if (arrAuthToken.length==0) return;
   try {
+    
     const docRef = query(collection(db, 'users'), where(documentId(), 'in', arrAuthToken));
     let docSnap = await getDocs(docRef);
 
@@ -317,7 +312,8 @@ export const sendBDGift = async (gifterToken: string, receiverToken: string) => 
         })
 
         let gifterdoc = await getDoc(gifterRef);
-        return await gifterdoc.data()['usersGifted'];
+        console.log(await gifterdoc.data())
+        return await gifterdoc.data()?.usersGifted;
 
       }
     }
