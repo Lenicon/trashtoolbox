@@ -1,54 +1,58 @@
 // import React from 'react'
 
 import { useEffect, useRef, useState } from "react";
-import { checkUserExist, createUserAsync, getCurrentBDCelebrants, getUpcomingBDCelebrants, getUserDataAllAsync, getUserDataAsync, sendBDGift } from "../services/dbService";
+import { checkUserExist, createUserAsync, getCurrentBDCelebrants, getUpcomingBDCelebrants, getUserDataAllAsync, getUserDataByArray, sendBDGift, updateUserAsync } from "../services/dbService";
 import Calendar from "../components/calendar/Calendar";
 import secureLocalStorage from "react-secure-storage";
 import Countdown from "../components/Countdown";
-import { format } from "date-fns";
+import { format, isBefore } from "date-fns";
 import '../assets/css/rainbow.css';
 
 export default function BirthdayCelebrator() {
+  const lsUserInfo: any = useRef(secureLocalStorage.getItem('birthday'));
+  const authToken: any = useRef(localStorage.getItem('authToken'));
+
   const uid = useRef('');
   const bd = useRef('');
 
   const [curCeleb, setCurCeleb] = useState<any>([]);
-
   const [upCeleb, setUpCeleb] = useState<any>([]);
+  const [upLoading, setUpLoading] = useState(false);
+  const [curLoading, setCurLoading] = useState(false);
 
   const [currentDate, setCurrentDate] = useState<Date | undefined>(undefined);
   const [username, setUsername] = useState<any>('');
 
-  const [birthdayInfo, setBirthdayInfo] = useState<any>({});
+  const [userInfo, setUserInfo] = useState<any>({});
 
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const [giftLoading, setGiftLoading] = useState(false);
+  
 
 
-  /***  ON RENDER BDAY  ***/
+  /***  ON RENDER USER INFO  ***/
   useEffect(() => {
-    let bday = secureLocalStorage.getItem('birthday');
-
-    // Check if bday localstorage not exist
-    if (!bday) {
-      // Set bday localstorage to the bd ref save.
-      if (bd.current.trim() != '') secureLocalStorage.setItem('birthday', bd.current);
-
-    } else {
-      // if bd ref not the same as the bday in localstorage
-      if (bd.current != bday) {
-        // set bday in localstorage as bd ref.
-        if (bd.current.trim() != '') secureLocalStorage.setItem('birthday', bd.current);
-        else bd.current = bday.toString();
+    let bi: any = secureLocalStorage.getItem('userInfo');
+    let au = localStorage.getItem('authToken');
+    if (bi == null || bi == undefined) {
+      console.log('bi is null')
+      if (au == null) return;
+      async function getData() {
+        let docs = await getUserDataAllAsync(au);
+        await secureLocalStorage.setItem('userInfo', docs);
+        await setUserInfo(docs);
       }
+      getData();
+    } else {
+      if (au == null) secureLocalStorage.removeItem('userInfo');
+      else setUserInfo(bi);
     }
-  }, [])
+  }, []);
+
 
   /***  ON RENDER AUTH TOKEN  ***/
   useEffect(() => {
-    let authToken = localStorage.getItem('authToken');
-
     // Check if authToken exists
     if (authToken != undefined || authToken != null) {
       let res = checkUserExist(authToken.toString());
@@ -59,19 +63,6 @@ export default function BirthdayCelebrator() {
         if (authToken == uid.current) return;
         // set uid ref as authtoken if uid ref isnt the authtoken
         uid.current = authToken.toString();
-
-        // check if birthday is NOT in localstorage
-        if (secureLocalStorage.getItem('birthday') == null || secureLocalStorage.getItem('birthday') == undefined) {
-
-          async function setbday() {
-            let bdaydata = await getUserDataAsync(authToken.toString(), 'birthday');
-
-            await secureLocalStorage.setItem('birthday', new Date(bdaydata.toDate()).toISOString());
-            window.location.reload()
-          }
-          setbday();
-
-        }
       }
       // If not a user in database
       else {
@@ -92,32 +83,50 @@ export default function BirthdayCelebrator() {
         localStorage.setItem('authToken', uid.current);
       }
     }
-  }, [])
+  }, []);
+
 
   /*** IF CURRENTLY YOUR BIRTHDAY ***/
   useEffect(() => {
-    if (secureLocalStorage.getItem('birthday') == null || secureLocalStorage.getItem('birthday') == undefined) return;
+    let bi: any = secureLocalStorage.getItem('userInfo');
 
-    let bday = new Date(secureLocalStorage.getItem('birthday').toString());
+    if (!bi?.birthday) return;
+
+    let bday = new Date(bi?.birthday.toString());
     if (format(new Date(), 'MM-dd-yyyy') == format(bday, 'MM-dd-yyyy')) {
 
-      let bi: any = secureLocalStorage.getItem('birthdayInfo');
+      async function updateClear() {
+        await updateUserAsync(authToken, { giftsReceived: 0 });
+        bi.giftsReceived = 0;
+        await secureLocalStorage.setItem('userInfo', bi);
+        await setUserInfo(bi);
+      }
+
+      if (bi?.cleared == false) {
+        updateClear();
+      }
 
       async function setbday() {
         let u = await getUserDataAllAsync(localStorage.getItem('authToken'));
 
         if (bi == null || bi == undefined) bi = {};
 
-        bi.gifts = u?.giftsReceived + 1;
+        bi.giftsReceived = u?.giftsReceived + 1;
         if (!bi?.username) bi.username = u?.username;
+        bi.cleared = true;
 
-        await secureLocalStorage.setItem('birthdayInfo', bi);
-        await setBirthdayInfo(bi);
+        await secureLocalStorage.setItem('userInfo', bi);
+        await setUserInfo(bi);
       }
 
       if (!bi?.username || !bi?.giftsReceived) setbday();
-      else setBirthdayInfo(secureLocalStorage.getItem('birthdayInfo'));
+      else setUserInfo(secureLocalStorage.getItem('userInfo'));
 
+    }
+    else {
+      if (bi?.cleared == null) bi.cleared = false;
+      secureLocalStorage.setItem('userInfo', bi);
+      setUserInfo(bi);
     }
 
   }, []);
@@ -145,12 +154,14 @@ export default function BirthdayCelebrator() {
       let user = await createUserAsync({ username: info?.username, birthday: info?.birthday, giftsReceived: 0, usersGifted: [] });
 
       if (user != null) {
-        // await setBDayAsync(user, info?.username, info?.birthday);
-        // bd.current = info?.birthday.toISOString();
-        await secureLocalStorage.setItem('birthday', info?.birthday.toISOString());
-        await secureLocalStorage.setItem('birthdayInfo', { username: info?.username });
-        bd.current = info?.birthday.toISOString();
+        let bi: any = secureLocalStorage.getItem('userInfo');
 
+        if (bi == null || bi == undefined) bi = {};
+        if (!bi?.username) bi.username = info?.username;
+        if (!bi?.birthday) bi.birthday = info?.birthday.toISOString();
+
+        await secureLocalStorage.setItem('userInfo', bi);
+        bd.current = info?.birthday.toISOString();
         return window.location.reload();
       }
 
@@ -162,42 +173,93 @@ export default function BirthdayCelebrator() {
   }
 
   useEffect(() => {
-    let bi = secureLocalStorage.getItem('birthdayInfo')
-    if (bi != null || bi != undefined) setBirthdayInfo(bi);
+    let bi = secureLocalStorage.getItem('userInfo')
+    if (bi != null || bi != undefined) setUserInfo(bi);
   }, [])
 
 
   /***  LOAD CURRENT CELEBRANTS  ***/
   const handleLoadCurrentCelebrants = async () => {
+    setCurLoading(true);
+
+    let bi: any = secureLocalStorage.getItem('userInfo');
+
+    if (bi?.usersGifted?.length != 0) {
+      // console.log(bi?.usersGifted);
+
+      let ugData = await getUserDataByArray(bi?.usersGifted);
+      // console.log(ugData, '2');
+
+      await ugData.forEach(({ id, birthday }: any) => {
+        // Check if birthday already happend before today
+        if (isBefore(new Date(format(birthday, 'MMMM dd')), new Date(format(new Date(), 'MMMM dd')))) {
+          bi.usersGifted = bi?.usersGifted.filter((val: string) => val != id);
+        }
+      });
+
+      // console.log(bo?.usersGifted);
+      // console.log('bongos binted');
+      await secureLocalStorage.setItem('userInfo', bi);
+      await updateUserAsync(localStorage.getItem('authToken'), { usersGifted: bi?.usersGifted });
+
+    }
+
     let celeb = await getCurrentBDCelebrants(localStorage.getItem('authToken'));
     if (!celeb) setCurCeleb([{}])
     else setCurCeleb(celeb);
     console.log(curCeleb);
+
+    setCurLoading(false);
+
   }
 
 
   /***  LOAD UPCOMING CELEBRANTS  ***/
   const handleLoadUpcomingCelebrants = async () => {
+    setUpLoading(true);
+    let bi: any = secureLocalStorage.getItem('userInfo');
+
+    if (bi?.usersGifted?.length != 0) {
+      let ugData = await getUserDataByArray(bi?.usersGifted);
+      // console.log(ugData, '2');
+
+      await ugData.forEach(({ id, birthday }: any) => {
+        // Check if birthday already happend before today
+        if (isBefore(new Date(format(birthday, 'MMMM dd')), new Date(format(new Date(), 'MMMM dd')))) {
+          bi.usersGifted = bi?.usersGifted.filter((val: string) => val != id);
+        }
+      });
+
+
+      // console.log('bongos binted');
+      await secureLocalStorage.setItem('userInfo', bi);
+      await updateUserAsync(localStorage.getItem('authToken'), { usersGifted: bi });
+
+    }
+
     let celeb = await getUpcomingBDCelebrants(localStorage.getItem('authToken'));
     if (!celeb) setUpCeleb([{}])
     else setUpCeleb(celeb);
-    console.log(upCeleb);
+
+    setUpLoading(false);
+
   }
 
 
 
   const handleSendGift = async (gifterToken: string, receiverToken: string) => {
+    setGiftLoading(true);
     let giftedArray = await sendBDGift(gifterToken, receiverToken);
     if (!giftedArray) return;
 
-    let bi: any = secureLocalStorage.getItem('birthdayInfo');
+    let bi: any = secureLocalStorage.getItem('userInfo');
 
     if (bi == null || bi == undefined) bi = {};
     bi.usersGifted = giftedArray;
 
-    await secureLocalStorage.setItem('birthdayInfo', bi);
-    await setBirthdayInfo(bi);
-    await window.location.reload();
+    await secureLocalStorage.setItem('userInfo', bi);
+    await setUserInfo(bi);
+    await setGiftLoading(false);
 
   }
 
@@ -215,26 +277,26 @@ export default function BirthdayCelebrator() {
   return (
     <div className="lg:w-[920px] md:w-[768px] sm:w-[90%] m-auto">
 
-      {secureLocalStorage.getItem('birthday') != null && localStorage.getItem('authToken') != undefined || localStorage.getItem('authToken') != null ?
+      {userInfo?.birthday != null && localStorage.getItem('authToken') != undefined || localStorage.getItem('authToken') != null ?
 
         <div className="mt-7">
 
-          {/* {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? <span>Received {birthdayInfo?.gifts||0} 🎁 this year.</span>:<></>} */}
+          {/* {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? <span>Received {userInfo?.gifts||0} 🎁 this year.</span>:<></>} */}
 
           {/* SHOW COUNTDOWN */}
-          {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ?
+          {format(new Date(), 'MM-dd-yyyy') != format(new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006'), 'MM-dd-yyyy') ?
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh]">
-              <p>Received <strong>{birthdayInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
+              <p>Received <strong>{userInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
               <button onClick={test}>test</button>
-              <Countdown toDate={new Date(secureLocalStorage.getItem('birthday').toString())} />
+              <Countdown toDate={new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006')} />
               <p className="text-2xl">...left until your Birthday!</p>
             </div>
             :
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh] mb-5">
 
-              <h1 className="text-2xl font-bold">HAPPY BIRTHDAY, <span className="rainbowText">{birthdayInfo?.username ? birthdayInfo?.username.toUpperCase() : '❔'}</span>!</h1>
+              <h1 className="text-2xl font-bold">HAPPY BIRTHDAY, <span className="rainbowText">{userInfo?.username ? userInfo?.username.toUpperCase() : '❔'}</span>!</h1>
               <img className="size-[50%]" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f382.svg" />
-              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{birthdayInfo?.gifts ? birthdayInfo?.gifts:1} Present{birthdayInfo?.gifts > 1 ? 's' : ''} 🎁</span> this Year!</h2>
+              <h2 className="text-lg font-bold">You Received <span className="rainbowText">{userInfo?.gifts ? userInfo?.gifts : 1} Present{userInfo?.gifts > 1 ? 's' : ''} 🎁</span> this Year!</h2>
             </div>
           }
           {/* LOAD CELEBRANTS*/}
@@ -243,7 +305,11 @@ export default function BirthdayCelebrator() {
 
             {/* CURRENT CELEBRANTS */}
             {curCeleb.length == 0 ?
-              <button onClick={handleLoadCurrentCelebrants} className="py-5 bg-green-400 hover:bg-green-300 md:w-[30%] w-[70%] font-bold md:mb-0 mb-2 h-full">Load Current Celebrants</button>
+              <button onClick={handleLoadCurrentCelebrants}
+              className="py-5 bg-green-400 hover:bg-green-300 md:w-[30%] w-[70%] font-bold h-full disabled:bg-gray-300 disabled:hover:cursor-progress"
+              disabled={curLoading}>
+                Load Current Celebrants
+              </button>
               :
               <div className="flex flex-col gap-3 items-center justify-center md:mb-16 mb-5">
                 <span className="font-bold text-xl">{format(new Date(), 'LLLL dd')} Birthday Celebrants</span>
@@ -257,12 +323,13 @@ export default function BirthdayCelebrator() {
                         </span>
 
                         {/* GIFT BUTTON */}
-                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift" className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
-                          disabled={giftLoading ? true : birthdayInfo?.usersGifted ? birthdayInfo?.usersGifted.includes(id) : false}>
+                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift"
+                        className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
+                          disabled={giftLoading ? true : userInfo?.usersGifted ? userInfo?.usersGifted.includes(id) : false}>
                           {giftLoading ? 'GIFTING...' : 'GIFT'}
                         </button>
 
-                      </div> : <span key={0} className="text-gray-800 text-center">No {format(new Date(), 'MM-dd-yyyy') != format(new Date(secureLocalStorage.getItem('birthday').toString()), 'MM-dd-yyyy') ? 'Current' : 'Other'} Celebrants found in this site...</span>
+                      </div> : <span key={0} className="text-gray-800 text-center">No {format(new Date(), 'MM-dd-yyyy') != format(new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006'), 'MM-dd-yyyy') ? 'Current' : 'Other'} Celebrants found in this site...</span>
                     ))
                   }
                 </div>
@@ -271,7 +338,11 @@ export default function BirthdayCelebrator() {
 
             {/* UPCOMING CELEBRANTS */}
             {upCeleb.length == 0 ?
-              <button onClick={handleLoadUpcomingCelebrants} className="py-5 bg-yellow-400 hover:bg-yellow-300 md:w-[30%] w-[70%] font-bold h-full">Load Upcoming Celebrants</button>
+              <button onClick={handleLoadUpcomingCelebrants}
+              className="py-5 bg-yellow-400 hover:bg-yellow-300 md:w-[30%] w-[70%] font-bold h-full disabled:bg-gray-300 disabled:hover:cursor-progress"
+              disabled={upLoading}>
+                Load Upcoming Celebrants
+              </button>
               :
               <div className="flex flex-col gap-3 items-center justify-center mb-16">
                 <span className="font-bold text-xl">Upcoming Birthday Celebrants</span>
@@ -285,8 +356,9 @@ export default function BirthdayCelebrator() {
                         </span>
 
                         {/* GIFT BUTTON */}
-                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift" className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
-                          disabled={giftLoading ? true : birthdayInfo?.usersGifted ? birthdayInfo?.usersGifted.includes(id) : false}>
+                        <button onClick={() => handleSendGift(localStorage.getItem('authToken'), id)} aria-label="sendGift"
+                        className="bg-lime-500 hover:bg-lime-600 px-2 rounded-r w-[40%] disabled:bg-gray-300 font-semibold disabled:hover:cursor-not-allowed"
+                          disabled={giftLoading ? true : userInfo?.usersGifted ? userInfo?.usersGifted.includes(id) : false}>
                           {giftLoading ? 'GIFTING...' : 'GIFT'}
                         </button>
 
@@ -297,10 +369,7 @@ export default function BirthdayCelebrator() {
               </div>
             }
 
-
-
           </div>
-
         </div>
 
         : <></>}
@@ -311,9 +380,11 @@ export default function BirthdayCelebrator() {
 
         <form className="flex flex-col justify-center h-screen gap-2">
           <h1 className="font-bold text-center text-xl">Input your Name and Birth Date</h1>
-          <input maxLength={30} type="text" className="border border-black text-center text-lg" aria-label="username" placeholder="Your Name" value={username} onChange={(e) => setUsername(e.target.value)} />
+
+          <input maxLength={30} type="text" className="border border-black text-center text-lg" aria-label="username" placeholder="Your Name" value={lsUserInfo.current?.username ? lsUserInfo.current?.username : username} disabled={lsUserInfo.current?.username != null || lsUserInfo.current?.username != undefined} onChange={(e) => setUsername(e.target.value)} />
+
           <Calendar className='m-0' value={currentDate} onChange={setCurrentDate} />
-          <button type="button" onClick={handleSubmitInfo} className="m-0 bg-green-400 p-4 font-bold disabled:bg-gray-300 disabled:hover:cursor-not-allowed" disabled={(username.trim() == '' || currentDate == null || currentDate == undefined || submitLoading == true)}>{submitLoading ? 'LOADING...' : 'SUBMIT'}</button>
+          <button type="button" onClick={handleSubmitInfo} className="m-0 bg-green-400 p-4 font-bold disabled:bg-gray-300 disabled:hover:cursor-progress" disabled={(username.trim() == '' || currentDate == null || currentDate == undefined || submitLoading == true)}>{submitLoading ? 'LOADING...' : 'SUBMIT'}</button>
         </form>
         : <></>}
 

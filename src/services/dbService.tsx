@@ -13,9 +13,16 @@ import {
   limit,
   increment,
   arrayUnion,
+  Timestamp,
+  documentId,
 } from 'firebase/firestore';
 import { addDays, format } from 'date-fns';
 
+
+export const objectFilter = (obj: any, predicate: any) =>
+  Object.keys(obj)
+    .filter(key => predicate(obj[key]))
+    .reduce((res: any, key) => (res[key] = obj[key], res), {});
 
 const genRandomNum = () => {
   return Math.floor(Math.random() * (9999999999 - 1000000000 + 1)) + 1000000000;
@@ -86,7 +93,20 @@ export const getUserDataAllAsync = async (authToken: string) => {
     let docSnap = await getDoc(docRef);
 
     if (docSnap.exists() == true) {
-      return await docSnap.data();
+      let dat = await docSnap.data();
+
+      let datedat = objectFilter(dat, (d: any) => d instanceof Timestamp);
+      let newdatedat: any = {};
+      if (Object.keys(datedat).length != 0) {
+        Object.keys(datedat).map((key: any) => {
+          newdatedat[key] = datedat[key].toDate();
+        })
+      }
+
+      let compiledData = { ...dat, ...newdatedat };
+      // console.log(compiledData);
+
+      return compiledData;
     }
 
   } catch (e) {
@@ -100,7 +120,12 @@ export const getUserDataAsync = async (authToken: string, data: string) => {
     let docSnap = await getDoc(docRef);
 
     if (docSnap.exists() == true) {
-      return await docSnap.data()[data];
+      let dat = await docSnap.data()[data];
+
+      if (dat instanceof Timestamp) dat.toDate();
+      // console.log(dat);
+
+      return dat;
     }
 
   } catch (e) {
@@ -108,7 +133,39 @@ export const getUserDataAsync = async (authToken: string, data: string) => {
   }
 }
 
-export const getUsersAsync = async () => {
+export const getUserDataByArray = async (arrAuthToken: Array<string>) => {
+  try {
+    const docRef = query(collection(db, 'users'), where(documentId(), 'in', arrAuthToken));
+    let docSnap = await getDocs(docRef);
+
+    if (!docSnap.empty) {
+      let dat = [...docSnap.docs.map((d) => ({ id: d.id, ...d.data() }))];
+      let compiledData:any = []
+
+      dat.map((i) => {
+        let datedat = objectFilter(i, (d: any) => d instanceof Timestamp);
+        let newdatedat: any = {};
+        if (Object.keys(datedat).length != 0) {
+          Object.keys(datedat).map((key: any) => {
+            newdatedat[key] = datedat[key].toDate();
+          })
+        }
+
+        compiledData = [...compiledData, { ...i, ...newdatedat }];
+      });
+
+      // console.log(compiledData);
+
+      return compiledData;
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+export const getEveryoneAsync = async () => {
   try {
     const docRef = collection(db, 'users');
     let docSnap = await getDocs(docRef);
@@ -123,7 +180,6 @@ export const getUsersAsync = async () => {
     console.error(e);
   }
 }
-
 
 
 
@@ -159,7 +215,7 @@ export const getCurrentBDCelebrants = async (authToken: string) => {
 
       }
 
-      console.log(docs);
+      // console.log(docs);
       let a = docs.filter((d) => (d.id != authToken));
       if (a.length == 0) return [{}];
       return a;
@@ -170,7 +226,7 @@ export const getCurrentBDCelebrants = async (authToken: string) => {
       if (!docSnapUnder.empty) {
         let docs = [...docSnapUnder.docs.map((d) => ({ id: d.id, ...d.data() }))];
 
-        console.log(docs);
+        // console.log(docs);
         let a = docs.filter((d) => (d.id != authToken));
         if (a.length == 0) return [{}];
         return a;
@@ -213,7 +269,7 @@ export const getUpcomingBDCelebrants = async (authToken: string) => {
 
       }
 
-      console.log(docs);
+      // console.log(docs);
       let a = docs.filter((d) => (d.id != authToken));
       if (a.length == 0) return [{}];
       return a;
@@ -224,7 +280,7 @@ export const getUpcomingBDCelebrants = async (authToken: string) => {
       if (!docSnapUnder.empty) {
         let docs = [...docSnapUnder.docs.map((d) => ({ id: d.id, ...d.data() }))];
 
-        console.log(docs);
+        // console.log(docs);
         let a = docs.filter((d) => (d.id != authToken));
         if (a.length == 0) return [{}];
         return a;
