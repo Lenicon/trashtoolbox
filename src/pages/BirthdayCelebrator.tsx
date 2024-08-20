@@ -276,17 +276,6 @@ export default function BirthdayCelebrator() {
     play();
   }
 
-  const test = async () => {
-    secureLocalStorage.setItem('badaw', { gayporn: 1 });
-    let ab: any = secureLocalStorage.getItem('badaw');
-    console.log(secureLocalStorage.getItem('badaw'), '1');
-    ab.greg = 3;
-    ab.abby = 'hi';
-    console.log(ab, '2');
-    secureLocalStorage.setItem('badaw', ab);
-    console.log(secureLocalStorage.getItem('badaw'), '3');
-  }
-
   const getAge = () => {
     return differenceInYears(new Date(format(new Date(), 'MM-dd-yyyy')), new Date(format(userInfo?.birthday, 'MM-dd-yyyy')));
   }
