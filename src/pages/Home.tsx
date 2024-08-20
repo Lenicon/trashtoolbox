@@ -15,7 +15,7 @@ export default function Home() {
         <p className="md:text-2xl text-base pb-16 text-center">{homewords[Math.floor(Math.random() * homewords.length)]}</p>
       </div>
 
-      <div className="flex flex-wrap gap-5">
+      <div className="flex flex-wrap gap-5 justify-center items-center">
         {Object.keys(links).filter(t => !t.startsWith('!')).map(key => (
           <a className="text-[1.5rem] underline hover:text-yellow-600" onClick={() => setLoading(true)}  href={key}>{links[key].title}</a>
         ))}
