@@ -293,7 +293,7 @@ export default function BirthdayCelebrator() {
           {format(new Date(), 'MMMM dd') != format(new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : 'August 8'), 'MMMM dd') ?
             <div className="flex flex-col gap-3 justify-center items-center h-[50vh]">
               <p className="text-center">Hello <strong>{userInfo?.username}</strong>,<br/>You Received <strong>{userInfo?.gifts || 0} Presents</strong> 🎁 this year.</p>
-              <Countdown toDate={new Date(userInfo?.birthday ? userInfo?.birthday?.toString() : '8/8/2006')} />
+              <Countdown toDate={new Date(userInfo?.birthday ? format(userInfo?.birthday, 'MMMM dd') : 'August 8')} />
               <p className="text-2xl">...left until your Birthday!</p>
             </div>
             :
