@@ -1,8 +1,8 @@
 # Trash Toolbox
-Just some tools I made (in a hurry) to help myself
+I'm making 1 random web tool per week. Why? Because I want to and I'm bored.
 
-Link: https://trash-toolbox.web.app/
+**Current Milestone:** 3/10 Tools 
 
-Cointains:
-- SVG Colorer
-- Planning to add more...
+**Website Link:** https://trash-toolbox.web.app/
+
+**YT Shorts Series:** https://www.youtube.com/playlist?list=PLBv3I3iLA1oys0zOA5GI38QG27z0Imu9y

@@ -153,16 +153,16 @@ export default function RottenFoodChecker() {
 	}
 
 	return (
-		<div className='flex flex-col gap-5 justify-center items-center w-[100vw] h-[100vh] px-2'>
+		<div className='lg:w-[920px] md:w-[768px] sm:w-[90%] m-auto'>
 
-			<h1 className="text-3xl font-bold pb-5">ROTTEN FOOD CHECKER</h1>
+			<h1 className="text-3xl font-bold pb-5 mt-16 text-center">ROTTEN FOOD CHECKER</h1>
 
-			<div className='flex flex-row gap-10 justify-center'>
+			<div className='flex sm:flex-row flex-wrap w-full gap-10 justify-center'>
 				{/* FORM FIELD */}
 				<div className='gap-3 flex flex-col text-xl items-center text-center'>
 					<input placeholder='Food Name' className='text-center border border-gray-500' aria-label='foodName' type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} />
 
-					<div className='flex flex-row gap-3 pt-3 select-none'>
+					<div className='flex flex-row gap-3 md:pt-3 select-none'>
 						<button type='button' aria-label='tab-button' className={`${type ? '' : 'underline'} text-center`} onClick={() => setType(false)}>by Description</button>
 						<button type='button' aria-label='tab-button' className={`${type ? 'underline' : ''} text-center`} onClick={() => setType(true)}>by Image</button>
 					</div>
@@ -185,7 +185,7 @@ export default function RottenFoodChecker() {
 						<input id='foodImg' className='hidden' aria-label='foodImg' type="file" accept='.png,.jpg,.webp,.heic,.heif' onChange={handleImageUpload} />
 					</div>
 
-					<div className='flex flex-wrap w-full gap-2 pt-3 select-none'>
+					<div className='flex flex-wrap w-full gap-2 md:pt-3 select-none'>
 						<button type='button' className='w-[48%] bg-green-400' onClick={handleSubmit} disabled={loading}>{loading ? `Reloading...` : 'Check'}</button>
 						<button type='button' className=' w-[48%] bg-red-400' onClick={handleClear}>Clear</button>
 
@@ -193,7 +193,7 @@ export default function RottenFoodChecker() {
 				</div>
 
 				{/* RESULT FIELD */}
-				<div className={`min-w-[50%] max-w-[50%] flex flex-col justify-center items-center px-5 text-wrap text-center ${foodRes.length != 0 && error == '' ? 'text-white bg-black' : 'border-gray-500 border'}`}>
+				<div className={`md:-mt-0 -mt-5 min-w-[50%] max-w-[50%] flex flex-col justify-center items-center px-5 text-wrap text-center md:py-0 py-5 ${foodRes.length != 0 && error == '' ? 'text-white bg-black' : 'border-gray-500 border'}`}>
 
 					{/* BLANK PLACEHOLDER */}
 					<span className={`text-gray-500 ${foodRes.length < 2 && error == '' ? '' : 'hidden'}`}>Results Here</span>
@@ -224,7 +224,6 @@ export default function RottenFoodChecker() {
 
 				</div>
 			</div>
-
 		</div>
 	)
 }
