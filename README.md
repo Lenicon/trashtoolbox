@@ -1,7 +1,7 @@
 # Trash Toolbox
 I'm making 1 random web tool per week. Why? Because I want to and I'm bored.
 
-**Current Milestone:** 3/10 Tools 
+**Current Milestone:** 3/5 Tools
 
 **Website Link:** https://trash-toolbox.web.app/
 

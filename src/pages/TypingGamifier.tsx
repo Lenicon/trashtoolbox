@@ -85,5 +85,7 @@ export default function TypingGamifier() {
 
       </div>
     </div>
+
+    
   )
 }
