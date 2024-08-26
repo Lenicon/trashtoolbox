@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { v4 as getID } from 'uuid';
 
 export default function TypingGamifier() {
-  const [words, setWords] = useState('test');
+  const [words, setWords] = useState('loading...');
   const [maxTime, setMaxTime] = useState(50);
   const [maxTimeFocus, setMaxTimeFocus] = useState(false);
   const maxTimeRef = useRef(null);
