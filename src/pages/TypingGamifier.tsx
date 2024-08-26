@@ -265,7 +265,7 @@ export default function TypingGamifier() {
           <div className='font-mono items-center m-1 w-[calc(100%-0.7rem)] p-8 rounded-lg box-border border-[#ced4da] border-[1px] border-solid shadow-md mb-10'>
 
           <div className='words select-none flex flex-col border-2'>
-            <textarea className='w-full focus:outline-none text-xl' maxLength={2000} placeholder='Input what you want to typing gamify.' ref={entryRef} onKeyDown={handleKeyDown} onKeyUp={handleKeyDown} onChange={(e)=>setEntry(e.target.value)} value={entry}/>
+            <textarea className='w-full focus:outline-none text-xl' maxLength={2000} placeholder='Input what you want to typing gamify.' ref={entryRef} onChange={(e)=>setEntry(e.target.value)} value={entry}/>
               
             <span className='text-right text-gray-500'>{entry.length} / 2000</span>
           </div>
