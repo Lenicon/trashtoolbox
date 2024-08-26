@@ -17,12 +17,12 @@ export default function Home() {
 
       <div className="flex flex-wrap gap-5 justify-center items-center content mb-16">
         {Object.keys(links).filter(t => !t.startsWith('!')).map(key => (
-            <a className="md:w-[40%] w-[80%] border-2 shadow-md p-5 flex-row flex justify-between gap-4 items-center text-[1.5rem] homelinks" onClick={() => setLoading(true)}  href={key}>
-              {links[key].lefticon?<img width={50} src={links[key].lefticon}/>:<></>}
+            <a key={key} className="md:w-[40%] w-[80%] border-2 shadow-md p-5 flex-row flex justify-between gap-4 items-center md:text-[1.5rem] sm:text-[1.2rem] text-[1rem] homelinks" onClick={() => setLoading(true)}  href={key}>
+              {links[key].lefticon?<img draggable="false" width={50} src={links[key].lefticon}/>:<></>}
               <span className="text-wrap text-center leading-7 flex justify-center items-center w-full">
                 {links[key].title}
               </span>
-              {links[key].righticon?<img width={50} src={links[key].righticon}/>:<img width={50} src={links[key].lefticon}/>}
+              {links[key].righticon?<img draggable="false" width={50} src={links[key].righticon}/>:<img width={50} src={links[key].lefticon}/>}
 
             </a>
         ))}
