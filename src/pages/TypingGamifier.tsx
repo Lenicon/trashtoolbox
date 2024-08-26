@@ -77,7 +77,7 @@ export default function TypingGamifier() {
         console.error(error);
       }
     } else {
-      if (words.trim() == 'test') genRandomWords();
+      if (words.trim() == 'loading...') genRandomWords();
     };
 
   }, []);
@@ -180,6 +180,7 @@ export default function TypingGamifier() {
     setMaxTime(rr);
     setTimeLeft(rr);
     restart();
+    if (searchParams.get('id')) navigate('');
   }
 
   const playEntry = async() => {
@@ -195,6 +196,12 @@ export default function TypingGamifier() {
   }
 
   const shareEntry = async () => {
+    if (searchParams.get('id')) {
+      await navigate(`?id=${searchParams.get('id')}&timelimit=${maxTime}`);
+      await navigator.clipboard.writeText(`${window.location}`);
+      return alert('Copied link to Clipboard:\n'+window.location);
+    }
+
     setSharing(true);
     let id = await getID();
     let res = await setData(id+".txt", words);
