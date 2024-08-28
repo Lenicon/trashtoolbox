@@ -31,6 +31,7 @@ export default function TypingGamifier() {
   const genRandomWords = () => {
     const res: any = generate({ min: 10, max: 30, seed: genRandomNum().toString() })
     setWords(res.join(" "));
+    setEntry(res.join(' '));
   }
 
 
@@ -85,11 +86,11 @@ export default function TypingGamifier() {
 
   useEffect(() => {
     if(searchParams.get('customoredit') && entryRef.current != null){
-      entryRef?.current.focus();
+      entryRef?.current?.focus();
     }
 
     if (inputRef.current != null){
-      inputRef?.current.focus();
+      inputRef?.current?.focus();
       setTamaMali(Array(charRefs.current.length).fill(''));
     }
     
@@ -256,20 +257,20 @@ export default function TypingGamifier() {
     <div className='lg:w-[920px] md:w-[768px] sm:w-[90%] m-auto'>
 
 
-      <div className='box-border mt-20 flex flex-col justify-center content-center items-center'>
-        <h1 className='font-bold pb-5 text-2xl'>Typing Gamifier</h1>
+      <div className='box-border md:mt-20 mt-10 flex flex-col justify-center content-center items-center'>
+        <h1 className='font-bold pb-5 md:text-2xl text-xl'>Typing Gamifier</h1>
 
 
         {searchParams.get('customoredit') ?
           // IF ON CUSTOM ENTRY
           <div className='font-mono items-center m-1 w-[calc(100%-0.7rem)] p-8 rounded-lg box-border border-[#ced4da] border-[1px] border-solid shadow-md mb-10'>
 
-          <div className='words select-none flex flex-col border-2'>
-            <textarea className='w-full focus:outline-none text-xl' maxLength={2000} placeholder='Input what you want to typing gamify.' ref={entryRef} onChange={(e)=>setEntry(e.target.value)} value={entry}/>
+          <div className='words flex flex-col border-2'>
+            <textarea className='w-full focus:outline-none md:text-xl text-lg resize-y min-h-20 max-h-24' maxLength={2000} placeholder='Input what you want as a typing game.' ref={entryRef} onChange={(e)=>setEntry(e.target.value)} value={entry}/>
               
             <span className='text-right text-gray-500'>{entry.length} / 2000</span>
           </div>
-          <span className='text-xl flex flex-row w-full border-2 mt-2 hover:cursor-text gap-2' onClick={()=>{maxTimeRef?.current?.focus();}}>
+          <span className='md:text-xl text-lg flex flex-row w-full border-2 mt-2 hover:cursor-text gap-2' onClick={()=>{maxTimeRef?.current?.focus();maxTimeRef?.current?.select();}}>
           <p className='w-full text-center'>Time Limit: <span className={maxTimeFocus?`border-b-2 border-b-blue-600`:''}>{maxTime}</span> seconds</p>
           <input maxLength={3} ref={maxTimeRef} className='absolute opacity-0' onFocus={()=>setMaxTimeFocus(true)} onBlur={()=>setMaxTimeFocus(false)} value={maxTime} onChange={(e)=>setMaxTime(e.target.value.trim()!='' ? parseInt(e.target.value):0)}/>
           </span>
@@ -291,11 +292,11 @@ export default function TypingGamifier() {
                 
                 char.trim()==''?
                 <span ref={(e)=>charRefs.current[index]=e} key={index}
-                className={`${index === charIndex?'border-b-2 border-b-blue-600':''} ${tamaMali[index]} px-1 text-xl select-none`}>
+                className={`${index === charIndex?'border-b-2 border-b-blue-600':''} ${tamaMali[index]} px-1 md:text-xl text-lg select-none`}>
                   {' '}
                 </span>:
                 <span ref={(e)=>charRefs.current[index]=e} key={index}
-                className={`${index === charIndex?'border-b-2 border-solid border-blue-600':''} ${tamaMali[index]} text-xl select-none`}>
+                className={`${index === charIndex?'border-b-2 border-solid border-blue-600':''} ${tamaMali[index]} md:text-xl text-lg select-none`}>
                   {char}
                 </span>
               ))
@@ -304,14 +305,14 @@ export default function TypingGamifier() {
 
           <div className='font-mono result flex justify-between items-center mt-4 pt-3 border-t-[2px] border-t-solid border-t-[#6a6a68]'>
 
-            <p>Time Left: <strong>{timeLeft}</strong></p>
-            <p>Mistakes: <strong>{mistakes}</strong></p>
-            <p>Corrected: <strong>{corrected}</strong></p>
-            <p>WPM: <strong>{WPM}</strong></p>
-            <p>CPM: <strong>{CPM}</strong></p>
+            <p className='md:text-base text-sm'>Time Left: <strong>{timeLeft}</strong></p>
+            <p className='md:text-base text-sm'>Mistakes: <strong>{mistakes}</strong></p>
+            <p className='md:text-base text-sm'>Corrected: <strong>{corrected}</strong></p>
+            <p className='md:text-base text-sm'>WPM: <strong>{WPM}</strong></p>
+            <p className='md:text-base text-sm'>CPM: <strong>{CPM}</strong></p>
 
           </div>
-          <div className='buttons flex md:flex-row flex-col justify-center md:gap-5 gap-1 items-center mt-4 select-none'>
+          <div className='buttons flex md:flex-row flex-col-reverse md:text-base text-sm font-bold justify-center md:gap-5 gap-1 items-center mt-4 select-none'>
             <button onClick={customEntry} aria-label='custom-entry' className='w-full py-3 md:py-5 hover:bg-yellow-500 bg-yellow-400'>Custom Entry</button>
             <button onClick={editEntry} aria-label='edit-entry' className='w-full py-3 md:py-5 hover:bg-orange-500 bg-orange-400'>Edit Entry</button>
             <button onClick={randomEntry} aria-label='random-entry' className='w-full py-3 md:py-5 hover:bg-blue-500 bg-blue-400'>Random Entry</button>

@@ -10,6 +10,7 @@ export const links:any = {
     ,'rotten-food-checker':{title: 'Rotten Food Checker', route:<RottenFoodChecker/>, lefticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f34f.svg", righticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1fab1.svg"}
     ,'birthday-celebrator': {title:'Birthday Celebrator', route:<BirthdayCelebrator/>, lefticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f382.svg", righticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f389.svg"}
     ,'typing-gamifier': {title:'Typing Gamifier', route:<TypingGamifier/>, lefticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/2328.svg", righticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/1f3ae.svg"}
+    ,'?':{title:'More Coming Soon...', lefticon:"https://cdn.jsdelivr.net/gh/twitter/twemoji@master/assets/svg/2753.svg"}
 }
 
 export const homewords:any = [

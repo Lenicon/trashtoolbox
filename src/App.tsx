@@ -25,7 +25,7 @@ function App() {
 
       </Routes>
       <footer className="text-center fixed bottom-0 flex flex-row justify-center items-center text-base bg-white w-full pb-1">
-        <span className="px-2">Made with 💖 by Len.icon</span>
+        <span className="px-2">Made with 💖 by <strong>Len.icon</strong></span>
         <span className="px-1">|</span>
         <a title="My Github" className="px-2 social text-lg hover:text-[#24292e]" target='_blank' href="https://github.com/Lenicon">
           <FontAwesomeIcon icon={faGithub} />
