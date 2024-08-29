@@ -1,8 +1,20 @@
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { homewords, links } from "../config/settings";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    let login = searchParams.get('login');
+    if (!login) return;
+    
+    localStorage.setItem('authToken', login.toString());
+    navigate('/');
+  },[])
 
   return (
     <div className={`h-full flex flex-col items-center ${loading ? 'cursor-wait' : 'cursor-default'} w-full`}>
@@ -17,7 +29,7 @@ export default function Home() {
 
       <div className="flex flex-wrap gap-5 justify-center items-center content mb-16">
         {Object.keys(links).filter(t => !t.startsWith('!')).map(key => (
-            <a key={key} className="md:w-[40%] w-[80%] border-2 shadow-md p-5 flex-row flex justify-between gap-4 items-center md:text-[1.5rem] sm:text-[1.2rem] text-[1rem] homelinks" onClick={() => !key.startsWith('?')?setLoading(true):null}
+            <a title={links[key].desc} key={key} className="md:w-[40%] w-[80%] border-2 shadow-md p-5 flex-row flex justify-between gap-4 items-center md:text-[1.5rem] sm:text-[1.2rem] text-[1rem] homelinks" onClick={() => !key.startsWith('?')?setLoading(true):null}
             href={!key.startsWith('?')?key:null}>
               {links[key].lefticon?<img draggable="false" width={50} src={links[key].lefticon}/>:<></>}
               <span className="text-wrap text-center leading-7 flex justify-center items-center w-full">

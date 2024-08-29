@@ -305,19 +305,19 @@ export default function TypingGamifier() {
 
           <div className='font-mono result flex justify-between items-center mt-4 pt-3 border-t-[2px] border-t-solid border-t-[#6a6a68]'>
 
-            <p className='md:text-base text-sm'>Time Left: <strong>{timeLeft}</strong></p>
-            <p className='md:text-base text-sm'>Mistakes: <strong>{mistakes}</strong></p>
-            <p className='md:text-base text-sm'>Corrected: <strong>{corrected}</strong></p>
-            <p className='md:text-base text-sm'>WPM: <strong>{WPM}</strong></p>
-            <p className='md:text-base text-sm'>CPM: <strong>{CPM}</strong></p>
+            <p className='md:text-base text-sm' title="The time left before you lose.">Time Left: <strong>{timeLeft}</strong></p>
+            <p className='md:text-base text-sm' title="The amount of mistypes you did. It's alright, you're only human afterall.">Mistakes: <strong>{mistakes}</strong></p>
+            <p className='md:text-base text-sm' title="The amount of mistypes you fixed. Shows how diligent you are.">Corrected: <strong>{corrected}</strong></p>
+            <p className='md:text-base text-sm' title="Words you typed per minute.">WPM: <strong>{WPM}</strong></p>
+            <p className='md:text-base text-sm' title="Characters you typed per minute.">CPM: <strong>{CPM}</strong></p>
 
           </div>
           <div className='buttons flex md:flex-row flex-col-reverse md:text-base text-sm font-bold justify-center md:gap-5 gap-1 items-center mt-4 select-none'>
-            <button onClick={customEntry} aria-label='custom-entry' className='w-full py-3 md:py-5 hover:bg-yellow-500 bg-yellow-400'>Custom Entry</button>
-            <button onClick={editEntry} aria-label='edit-entry' className='w-full py-3 md:py-5 hover:bg-orange-500 bg-orange-400'>Edit Entry</button>
-            <button onClick={randomEntry} aria-label='random-entry' className='w-full py-3 md:py-5 hover:bg-blue-500 bg-blue-400'>Random Entry</button>
-            <button onClick={shareEntry} disabled={sharing} aria-label='share' className='w-full py-3 md:py-5 hover:bg-pink-500 bg-pink-400'>{sharing?'On Cooldown':'Share Entry'}</button>
-            <button onClick={restart} aria-label='try-again' className='w-full py-3 md:py-5 hover:bg-green-500 bg-green-400'>Try Again</button>
+            <button title="Create a new entry/prompt of your own." onClick={customEntry} aria-label='custom-entry' className='w-full py-3 md:py-5 hover:bg-yellow-500 bg-yellow-400'>Custom Entry</button>
+            <button title="Edit the current entry/prompt." onClick={editEntry} aria-label='edit-entry' className='w-full py-3 md:py-5 hover:bg-orange-500 bg-orange-400'>Edit Entry</button>
+            <button title="Generate random words as your entry/prompt" onClick={randomEntry} aria-label='random-entry' className='w-full py-3 md:py-5 hover:bg-blue-500 bg-blue-400'>Random Entry</button>
+            <button title="Copy a link of the current entry/prompt, so you can share it around town." onClick={shareEntry} disabled={sharing} aria-label='share' className='w-full py-3 md:py-5 hover:bg-pink-500 bg-pink-400'>{sharing?'On Cooldown':'Share Entry'}</button>
+            <button title="Start again with the current entry/prompt." onClick={restart} aria-label='try-again' className='w-full py-3 md:py-5 hover:bg-green-500 bg-green-400'>Try Again</button>
 
           </div>
 
