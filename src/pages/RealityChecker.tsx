@@ -43,13 +43,9 @@ export default function RealityChecker() {
     setError(false);
     setLoading(true);
 
-    try {
-      let content = await generateContent(prompttxt + question, null, 25);
-      await setAnswer(`"${question}"\n\n${content}`);
-    } catch (error) {
-      setError(true);
-      console.error(error);
-    }
+    let content = await generateContent(prompttxt + question, null, 25);
+    if (content == undefined || content == null) return setError(true);
+    await setAnswer(`"${question}"\n\n${content}`);
 
     setQuestion('');
     setCD(true);
@@ -63,13 +59,13 @@ export default function RealityChecker() {
 
         <h1 className='font-bold pb-5 md:text-2xl text-xl'>Reality Checker</h1>
 
-        <div className='md:w-[50%] w-[95%] flex flex-col gap-1 text-lg'>
+        <div className='sm:w-[70%] w-[90%] flex flex-col gap-1 text-lg'>
 
           <input className='border-1 border-gray-400 border p-1 text-center' type="text" placeholder={curPlaceholder} maxLength={50} onChange={(e) => setQuestion(e.target.value)} value={question} />
 
-          <button type='button' disabled={loading || cd} onClick={handleRealityCheck} className='disabled:bg-red-600 hover:bg-red-400 bg-red-300 font-bold p-1'>{question.length < 7 || question.trim() == '' ? 'What is it?' : loading ? "Sigh, alright... ✋" : error ? "Not this time..." : cd ? "Lemme cooldown rq..." : "You sure you want an answer?"}</button>
+          <button type='button' disabled={loading || cd} onClick={handleRealityCheck} className='disabled:bg-red-600 hover:bg-red-400 bg-red-300 font-bold p-1'>{cd ? "Lemme cooldown rq..." :question.length < 7 || question.trim() == '' ? 'What is it?' : loading ? "Sigh, alright... ✋" : error ? "Not this time..." :  "You sure you want an answer?"}</button>
 
-          {answer == undefined || answer == null ? <></> : answer.trim() != '' ? <textarea className='border-1 border border-gray-400 h-[50vh] mb-14 p-1' readOnly placeholder='Solution will be displayed here.' value={answer} /> : <></>}
+          {answer == undefined || answer == null ? <></> : answer.trim() != '' ? <textarea className='border-1 border border-gray-400 h-[50vh] mb-14 p-1 text-center' readOnly placeholder='Solution will be displayed here.' value={answer} /> : <></>}
 
 
         </div>
