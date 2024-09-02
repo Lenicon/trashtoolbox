@@ -18,3 +18,23 @@ export const getOrdinal = (n: number) => {
 export const randomRange = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min) + min);
 }
+
+export const random = (max:number)=>{
+  return Math.floor(Math.random() * max);
+}
+
+export const superscript = (str:string) => {
+    str = str.replace(/0/g, "⁰");
+    str = str.replace(/1/g, "¹");
+    str = str.replace(/2/g, "²");
+    str = str.replace(/3/g, "³");
+    str = str.replace(/4/g, "⁴");
+    str = str.replace(/5/g, "⁵");
+    str = str.replace(/6/g, "⁶");
+    str = str.replace(/7/g, "⁷");
+    str = str.replace(/8/g, "⁸");
+    str = str.replace(/9/g, "⁹");   
+    str = str.replace(/-/g, "⁻");
+    return str;
+
+}

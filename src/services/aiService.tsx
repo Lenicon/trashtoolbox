@@ -2,14 +2,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-export const generateContent = async (prompt: string, image?: any) => {
+export const generateContent = async (prompt: string, image?: any, maxOutputTokens:number=5, temperature:number=1.0) => {
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       generationConfig: {
         candidateCount: 1,
-        maxOutputTokens: 5,
-        temperature: 1.0,
+        maxOutputTokens: maxOutputTokens,
+        temperature: temperature,
       },
     });
 
@@ -20,7 +20,6 @@ export const generateContent = async (prompt: string, image?: any) => {
 
     const response = await result.response;
     const text = response?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log(text);
     return text;
 
   } catch (error) {
